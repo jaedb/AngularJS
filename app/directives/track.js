@@ -17,14 +17,20 @@ angular.module('spotmop.directives.track', [
             currentPlayingTrack: "=currentplayingtrack"
         },
         transclude: true,
-        templateUrl: 'directives/track.template.html',
-        link: function(scope, element, attrs) {
-
+        templateUrl: '/app/directives/track.template.html',
+        link: function(scope, element, attrs){
+			
+			scope.track = scope.$parent.track;
+			
             var uri = $routeParams.uri;
-
+			
+			// if we're a nested track (as in playlists), un-nest
+			if( typeof(scope.track.track) !== 'undefined' )
+				scope.track = scope.track.track;
+			
             // Copy so we have raw tracks again (otherwise mopidy will crash)
             var track = angular.copy(scope.track);
-
+			
             scope.selected = false;
             scope.multipleselected = true;
 
@@ -37,18 +43,38 @@ angular.module('spotmop.directives.track', [
                 scope.surrounding = scope.$parent.loadedTracks;
 
             scope.artistsString = function(){
-                return util.artistsToString(scope.track.artists, true);
+                return 'asdfasdf';//return util.artistsToString(scope.track.artists, true);
             };
 
             scope.lengthHuman = function(){
-                return util.timeFromMilliSeconds(scope.track.length || scope.track.duration_ms);
+                return '123';//return util.timeFromMilliSeconds(scope.track.length || scope.track.duration_ms);
             };
 
             /**
              * Select the current track
              */
             scope.selectTrack = function(event){
-                if(event.ctrlKey === true){
+				
+				// ctrl key held
+				if(event.ctrlKey === true){
+					if( scope.selected )
+						scope.selected = false;
+					else
+						scope.selected = true;
+				
+				// shift key held
+				}else if( event.shiftKey === true ){
+					
+					
+				// no keys held, just a plain click
+				}else{
+					if( scope.selected )
+						scope.selected = false;
+					else
+						scope.selected = true;
+				}
+				
+      /*          if(event.ctrlKey === true){
                     if(scope.selected){
                         $rootScope.selectedtracks = _.without($rootScope.selectedtracks, _.findWhere($rootScope.selectedtracks, { uri: track.uri }));
                     }
@@ -59,14 +85,14 @@ angular.module('spotmop.directives.track', [
                 }
                 else{
                     $rootScope.selectedtracks = [track];
-                }
+                }*/
             };
 
             /**
              * Watch the rootscope.selectedtracks for changes
              * and check if the current track is still selected
              */
-            scope.$watch(function() {
+      /*      scope.$watch(function() {
                 return $rootScope.selectedtracks;
             }, function() {
                 var found = _.findWhere($rootScope.selectedtracks, { uri: track.uri });
@@ -75,21 +101,21 @@ angular.module('spotmop.directives.track', [
                     scope.selected = true;
                 else 
                     scope.selected = false;
-            }, true);
+            }, true);*/
 
             /*
              * Play the track            
              */
             scope.play = function(){
-                var clickedindex = 0;
+              /*  var clickedindex = 0;
                 var surroundinguris = [];
 
-                /**
+                *
                  * Check if this is the only selected track and play it
-                 */
+                 
                 if($rootScope.selectedtracks.length === 1){
                     if(track.__model__ == "Track"){
-                        mopidyservice.playTrack(track, scope.surrounding);    
+                        MopidyService.playTrack(track, scope.surrounding);    
                     }
                     else{
                         _.each(scope.surrounding, function(iTrack, index){
@@ -100,7 +126,7 @@ angular.module('spotmop.directives.track', [
                         });
 
                         // Play the clicked and surrounding tracks
-                        mopidyservice.playTrack(scope.surrounding[clickedindex], scope.surrounding);
+                        MopidyService.playTrack(scope.surrounding[clickedindex], scope.surrounding);
                     }    
                 }
                 else{
@@ -112,7 +138,7 @@ angular.module('spotmop.directives.track', [
                     // If the reject array is empty we can directly parse the tracks to mopidy
                     // Otherwise we have to convert them to Mopidy tracks and parse them
                     if(reject.length === 0){
-                        mopidyservice.playTrack(track, $rootScope.selectedtracks);
+                        MopidyService.playTrack(track, $rootScope.selectedtracks);
                     }
                     else{
                         _.each($rootScope.selectedtracks, function(iTrack, index){
@@ -123,20 +149,20 @@ angular.module('spotmop.directives.track', [
                         });
 
                         // Play the clicked and surrounding tracks
-                        mopidyservice.playTrack($rootScope.selectedtracks[clickedindex], $rootScope.selectedtracks);
+                        MopidyService.playTrack($rootScope.selectedtracks[clickedindex], $rootScope.selectedtracks);
                     }
-                }                
+                }                */
             };
             
             scope.startStation = function(){
-                stationservice.startFromSpotifyUri(scope.track.uri);
+//                stationservice.startFromSpotifyUri(scope.track.uri);
             };
 
             /**
              * Add selected tracks in the queue
              */
             scope.addToQueue = function(){
-                mopidyservice.addToTracklist({ tracks: $rootScope.selectedtracks }).then(function(response){
+                MopidyService.addToTracklist({ tracks: $rootScope.selectedtracks }).then(function(response){
                     // Broadcast event
                     $rootScope.$broadcast("mopidy:event:tracklistChanged", {});
                 });
@@ -147,25 +173,26 @@ angular.module('spotmop.directives.track', [
              * @param  {track} track
              */
             scope.removeFromQueue = function(){
+				/*
                 var uris = _.map($rootScope.selectedtracks, function(track){
                     return track.uri;
                 });
 
                 // Remove from tracklist
-                mopidyservice.removeFromTracklist({ uri: uris });
+                MopidyService.removeFromTracklist({ uri: uris });
 
                 // Hide tracks
                 scope.visible = false;
 
                 // Broadcast event
-                $rootScope.$broadcast("mopidy:event:tracklistChanged", {});
+                $rootScope.$broadcast("mopidy:event:tracklistChanged", {});*/
             };
 
             /*
              * Remove track from the playlist
              */
             scope.removeFromPlaylist = function(){
-                var playlistid = uri.split(":")[4];
+               /* var playlistid = uri.split(":")[4];
                     
                 var uris = _.map($rootScope.selectedtracks, function(track){
                     return track.uri;
@@ -177,14 +204,14 @@ angular.module('spotmop.directives.track', [
                     notifier.notify({type: "custom", template: "Track removed from playlist.", delay: 3000});
                 }, function(){
                     notifier.notify({type: "custom", template: "Can't remove track. Are you connected with Spotify and the owner if this playlist?", delay: 5000});
-                });
+                });*/
             };
 
             /**
              * Show the select playlist modal
              */
             scope.showPlaylists = function(){
-                // Open the playlist select modal
+               /* // Open the playlist select modal
                 var modalInstance = $modal.open({
                     templateUrl: 'modals/playlistselect.tmpl.html',
                     controller: 'PlaylistSelectModalController',
@@ -206,14 +233,14 @@ angular.module('spotmop.directives.track', [
                     }, function(){
                         notifier.notify({type: "custom", template: "Can't add track(s). Are you connected with Spotify and the owner if this playlist?", delay: 5000});
                     });
-                });
+                });*/
             };
 
             /*
              * Save or remove the track to/from the user's library
              */
             scope.toggleSaveTrack = function(){
-                if(ServiceManager.isEnabled("spotify") && SpotifyLogin.connected){
+               /* if(ServiceManager.isEnabled("spotify") && SpotifyLogin.connected){
 
                     if(scope.trackAlreadySaved){
                         // Remove
@@ -237,7 +264,7 @@ angular.module('spotmop.directives.track', [
                 }
                 else{
                     notifier.notify({type: "custom", template: "Can't add track. Are you connected with Spotify?", delay: 5000});   
-                }
+                }*/
             };
 
             /**

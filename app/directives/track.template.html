@@ -1,26 +1,34 @@
 <div class="track" context-menu="onContextShow()" context-menu-close="onContextClose()"
     data-target="{{ track.uri || track.tlid }}"
-    ng-class="{ 'highlight': highlight, 'expanded' : expanded, 'loading': track.loading, 'selected': selected }"
+    ng-class="{ 'highlight': highlight, 'expanded' : expanded, 'loading': track.loading, 'selected': selected, 'nowplaying': ($parent.currentPlayingTrack.uri == track.uri) }"
     hm-doubletap="play()"
     ng-click="selectTrack($event)"
     ng-show="visible">
 
-    <div class="row" ng-class="{'nowplaying': ($parent.currentPlayingTrack.uri == track.uri)}">
-        <div class="col-sm-4 col-xs-12 name">
-            {{ track.name }} 
-        </div>
-        <div class="col-sm-3 col-xs-6 artists">
-            <span ng-bind-html="artistsString()"></span>
-        </div>
-        <div class="col-sm-4 col-xs-6 album">
-            <a href="#/music/tracklist/{{ track.album.uri }}/{{ track.album.name }}">{{ track.album.name }}</a>
-        </div>
-        <div class="col-sm-1 visible-lg-block visible-md-block visible-sm-blocklength">
-            {{ lengthHuman() }}
-        </div>
-    </div>
+		<div class="col w30" ng-bind="track.name"></div>
+		<div class="col w30">
+			<span ng-repeat="artist in track.artists">
+				<a href="/browse/artist/{{ artist.uri }}" ng-bind="artist.name"></a><span ng-if="!$last">, </span>
+			</span>
+		</div>
+		<div class="col w30 album">
+			<a href="/browse/album/{{ track.album.uri }}" ng-bind="track.album.name"></a>
+		</div>
+		<div class="col w5" ng-bind="track.duration_ms | formatMilliseconds"></div>
+		<div class="col w5">
+			<div class="bars">
+				<span class="bar" ng-class="{true:'on'}[track.popularity>0]"></span>
+				<span class="bar" ng-class="{true:'on'}[track.popularity>20]"></span>
+				<span class="bar" ng-class="{true:'on'}[track.popularity>40]"></span>
+				<span class="bar" ng-class="{true:'on'}[track.popularity>60]"></span>
+				<span class="bar" ng-class="{true:'on'}[track.popularity>80]"></span>
+			</div>
+		</div>
+		<div class="clear-both"></div>
+	
 </div>
 
+<!--
 <div class="contextmenu position-fixed" id="{{ track.uri || track.tlid }}">
     <ul class="dropdown-menu" role="menu">
         <li ng-click="play()">
@@ -50,3 +58,4 @@
         </li>
     </ul>
 </div>
+-->

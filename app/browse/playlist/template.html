@@ -15,32 +15,9 @@
 		</div>
 	</div>
 	
-	<div class="playlist-items tracklist"  ng-controller="TracklistController">		
-	
-		<div class="track {{ class }}" ng-click="trackClicked( $event )" ng-dblclick="trackDoubleClicked( $event )" ng-repeat="track in tracks.items" data-uri="{{ track.track.uri }}">
-			<div class="col w30 title" ng-bind="track.track.name"></div>
-			<div class="col w30 artist">
-				<span ng-repeat="artist in track.track.artists">
-					<a href="/browse/artist/{{ artist.uri }}" ng-bind="artist.name"></a><span ng-if="!$last">, </span>
-				</span>
-			</div>
-			<div class="col w30 album"><a href="/browse/album/{{ track.track.album.uri }}" ng-bind="track.track.album.name"></a></div>
-			<div class="col w5 duration">{{ track.track.duration_ms | formatMilliseconds }}</div>
-			<div class="col w5 popularity">
-				<div class="bars">
-					<span class="bar" ng-class="{true:'on'}[track.track.popularity>0]"></span>
-					<span class="bar" ng-class="{true:'on'}[track.track.popularity>20]"></span>
-					<span class="bar" ng-class="{true:'on'}[track.track.popularity>40]"></span>
-					<span class="bar" ng-class="{true:'on'}[track.track.popularity>60]"></span>
-					<span class="bar" ng-class="{true:'on'}[track.track.popularity>80]"></span>
-				</div>
-			</div>
-			<div class="clear-both"></div>
-		</div>
-
-		<div ng-hide="tracks.items.length" class="no-items">
-			No items
-		</div>	
+	<div class="playlist-items tracklist" ng-repeat="track in tracks.items">		
+		
+		<spotmop-track/>
 		
 	</div>
 </div>
