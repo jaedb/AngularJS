@@ -1,0 +1,52 @@
+<div class="track" context-menu="onContextShow()" context-menu-close="onContextClose()"
+    data-target="{{ track.uri || track.tlid }}"
+    ng-class="{ 'highlight': highlight, 'expanded' : expanded, 'loading': track.loading, 'selected': selected }"
+    hm-doubletap="play()"
+    ng-click="selectTrack($event)"
+    ng-show="visible">
+
+    <div class="row" ng-class="{'nowplaying': ($parent.currentPlayingTrack.uri == track.uri)}">
+        <div class="col-sm-4 col-xs-12 name">
+            {{ track.name }} 
+        </div>
+        <div class="col-sm-3 col-xs-6 artists">
+            <span ng-bind-html="artistsString()"></span>
+        </div>
+        <div class="col-sm-4 col-xs-6 album">
+            <a href="#/music/tracklist/{{ track.album.uri }}/{{ track.album.name }}">{{ track.album.name }}</a>
+        </div>
+        <div class="col-sm-1 visible-lg-block visible-md-block visible-sm-blocklength">
+            {{ lengthHuman() }}
+        </div>
+    </div>
+</div>
+
+<div class="contextmenu position-fixed" id="{{ track.uri || track.tlid }}">
+    <ul class="dropdown-menu" role="menu">
+        <li ng-click="play()">
+            Play track<span ng-show="multipleselected">s</span>
+        </li>
+        <li class="divider"></li>
+        <li ng-click="addToQueue()">
+            Add track<span ng-show="multipleselected">s</span> to queue
+        </li>
+        <li ng-show="$parent.type == 'tracklist'" ng-click="removeFromQueue()">
+            Remove from queue
+        </li>
+        <li class="divider"></li>
+        <li ng-click="startStation()">
+            Start station
+        </li>
+        <li class="divider"></li>
+        <li ng-click="showPlaylists()">
+            Add to playlist
+        </li>
+        <li ng-if="$parent.isowner" ng-click="removeFromPlaylist()">
+            Remove from playlist
+        </li>
+        <li class="divider"></li>
+        <li ng-click="toggleSaveTrack()" ng-show='showSaveTrack'>
+            {{ (trackAlreadySaved) ? 'Remove track from library' : 'Save track in library' }}
+        </li>
+    </ul>
+</div>

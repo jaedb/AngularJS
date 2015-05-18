@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('spotmop.browse.playlist', [
-    'ngRoute'
+    'ngRoute',
+	'spotmop.directives.track'
 ])
 
 .config(function($routeProvider) {
