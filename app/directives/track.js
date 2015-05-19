@@ -20,93 +20,76 @@ angular.module('spotmop.directives.track', [
         templateUrl: '/app/directives/track.template.html',
         link: function(scope, element, attrs){
 			
+			function randomString(length) {
+				return Math.round((Math.pow(36, length + 1) - Math.random() * Math.pow(36, length))).toString(36).slice(1);
+			}
+			
+			// get the track from the parent scope
 			scope.track = scope.$parent.track;
+            scope.selected = false;
+            scope.visible = true;
+			scope.guid = randomString(32);
 			
             var uri = $routeParams.uri;
 			
-			// if we're a nested track (as in playlists), un-nest
+			// if we're a nested track.track (as in playlists), un-nest
 			if( typeof(scope.track.track) !== 'undefined' )
 				scope.track = scope.track.track;
 			
             // Copy so we have raw tracks again (otherwise mopidy will crash)
             var track = angular.copy(scope.track);
 			
-            scope.selected = false;
-            scope.multipleselected = true;
+			// if we haven't got a selected tracks container, set one up
+			if( typeof($rootScope.selectedTracks) === 'undefined' )
+				$rootScope.selectedTracks = [];
 
-            scope.visible = true;
-
-            scope.showSaveTrack = false;
-            scope.trackAlreadySaved = false;
-
-            if(scope.surrounding === undefined)
-                scope.surrounding = scope.$parent.loadedTracks;
-
-            scope.artistsString = function(){
-                return 'asdfasdf';//return util.artistsToString(scope.track.artists, true);
-            };
-
-            scope.lengthHuman = function(){
-                return '123';//return util.timeFromMilliSeconds(scope.track.length || scope.track.duration_ms);
-            };
-
+				
             /**
-             * Select the current track
+             * Select a track
              */
-            scope.selectTrack = function(event){
+            scope.selectTrack = function( event ){
 				
 				// ctrl key held
 				if(event.ctrlKey === true){
-					if( scope.selected )
-						scope.selected = false;
-					else
-						scope.selected = true;
-				
+					$rootScope.selectedTracks.push( scope.guid );
+					
 				// shift key held
 				}else if( event.shiftKey === true ){
+					$rootScope.selectedTracks.push( scope.guid );
 					
+					// TODO: figure out how to select between items
+					// tried jquery, but we lose the scope.selected binding if we bypass the directive
 					
-				// no keys held, just a plain click
+				// no keys held, just a plain click, so let's throw out any previously selected items
 				}else{
-					if( scope.selected )
-						scope.selected = false;
-					else
-						scope.selected = true;
+					$rootScope.selectedTracks = [ scope.guid ];
 				}
 				
-      /*          if(event.ctrlKey === true){
-                    if(scope.selected){
-                        $rootScope.selectedtracks = _.without($rootScope.selectedtracks, _.findWhere($rootScope.selectedtracks, { uri: track.uri }));
-                    }
-                    else{
-                        $rootScope.selectedtracks.push(track);    
-                    }
-                    
-                }
-                else{
-                    $rootScope.selectedtracks = [track];
-                }*/
+				console.log( $rootScope.selectedTracks );
             };
 
             /**
              * Watch the rootscope.selectedtracks for changes
-             * and check if the current track is still selected
-             */
-      /*      scope.$watch(function() {
-                return $rootScope.selectedtracks;
-            }, function() {
-                var found = _.findWhere($rootScope.selectedtracks, { uri: track.uri });
-                
-                if(found !== undefined)
-                    scope.selected = true;
-                else 
-                    scope.selected = false;
-            }, true);*/
+             * and check if the current track guid is still selected
+             **/
+			scope.$watch(
+				function() {
+					return $rootScope.selectedTracks;
+				},
+				function() {
+					if( $.inArray( scope.guid, $rootScope.selectedTracks) >= 0 )
+						scope.selected = true;
+					else 
+						scope.selected = false;
+				},
+				true
+			);
 
             /*
              * Play the track            
              */
-            scope.play = function(){
+            scope.play = function( event ){
+				console.log('play me!');
               /*  var clickedindex = 0;
                 var surroundinguris = [];
 

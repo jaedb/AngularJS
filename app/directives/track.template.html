@@ -1,7 +1,8 @@
 <div class="track" context-menu="onContextShow()" context-menu-close="onContextClose()"
+	data-guid="{{ guid }}"
     data-target="{{ track.uri || track.tlid }}"
     ng-class="{ 'highlight': highlight, 'expanded' : expanded, 'loading': track.loading, 'selected': selected, 'nowplaying': ($parent.currentPlayingTrack.uri == track.uri) }"
-    hm-doubletap="play()"
+    ng-dblclick="play($event)"
     ng-click="selectTrack($event)"
     ng-show="visible">
 
